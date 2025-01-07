@@ -48,6 +48,15 @@ const userSchema = mongoose.Schema(
         type: String,
         default: "",
       },
+      birthdate: {
+        type: Date,
+        required: false, // Facultatif, peut être changé selon vos besoins
+      },
+      gender: {
+        type: String,
+        enum: ["male", "female", "non-binary", "prefer not to say"], // Genres acceptés
+        default: "prefer not to say",
+      },
       website: {
         type: String,
         default: "",
