@@ -54,8 +54,8 @@ const userSchema = mongoose.Schema(
       },
       gender: {
         type: String,
-        enum: ["male", "female", "non-binary", "prefer not to say"], // Genres acceptés
-        default: "prefer not to say",
+        enum: ["male", "female", "custom", "irrelevant"], // Genres acceptés
+        default: "irrelevant",
       },
       website: {
         type: String,
