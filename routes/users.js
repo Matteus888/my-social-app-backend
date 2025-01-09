@@ -8,27 +8,28 @@ const bcrypt = require("bcrypt");
 
 // Route pour s'inscrire sur le site
 router.post("/signup", async (req, res) => {
-  if (!checkBody(req.body, ["username", "email", "password", "firstname", "lastname"])) {
+  if (!checkBody(req.body, ["emailValue", "passwordValue", "firstnameValue", "lastnameValue", "birthdateValue"])) {
     return res.status(400).json({ result: false, error: "Please complete all fields." });
   }
   try {
-    const existingUser = await User.findOne({ email: { $regex: new RegExp(`^${req.body.email}$`, "i") } });
+    const existingUser = await User.findOne({ email: { $regex: new RegExp(`^${req.body.emailValue}$`, "i") } });
 
     if (existingUser) {
       return res.status(409).json({ result: false, error: "This user already exists." });
     }
 
     const newUser = new User({
-      username: req.body.username,
-      email: req.body.email,
+      email: req.body.emailValue,
       token: uid2(32),
-      passwordHash: bcrypt.hashSync(req.body.password, 10),
+      passwordHash: bcrypt.hashSync(req.body.passwordValue, 10),
       profile: {
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
+        firstname: req.body.firstnameValue,
+        lastname: req.body.lastnameValue,
         avatar: req.body.avatar || null,
         bio: req.body.bio || "",
         location: req.body.location || "",
+        birthdate: req.body.birthdateValue,
+        gender: req.body.genderValue,
       },
     });
 

@@ -2,12 +2,6 @@ const mongoose = require("mongoose");
 
 const userSchema = mongoose.Schema(
   {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true, // Supprime les espaces en début et fin
-    },
     email: {
       type: String,
       required: true,
@@ -50,7 +44,7 @@ const userSchema = mongoose.Schema(
       },
       birthdate: {
         type: Date,
-        required: false, // Facultatif, peut être changé selon vos besoins
+        required: true,
       },
       gender: {
         type: String,
