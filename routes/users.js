@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 
 // Route pour s'inscrire sur le site
 router.post("/signup", async (req, res) => {
-  if (!checkBody(req.body, ["emailValue", "passwordValue", "firstnameValue", "lastnameValue", "birthdateValue"])) {
+  if (!checkBody(req.body, ["emailValue", "passwordValue", "firstnameValue", "lastnameValue", "birthdateValue", "avatarPath"])) {
     return res.status(400).json({ result: false, error: "Please complete all fields." });
   }
   try {
@@ -25,7 +25,7 @@ router.post("/signup", async (req, res) => {
       profile: {
         firstname: req.body.firstnameValue,
         lastname: req.body.lastnameValue,
-        avatar: req.body.avatar || null,
+        avatar: req.body.avatarPath,
         bio: req.body.bio || "",
         location: req.body.location || "",
         birthdate: req.body.birthdateValue,
