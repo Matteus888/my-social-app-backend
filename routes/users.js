@@ -11,38 +11,34 @@ router.post("/signup", async (req, res) => {
   if (!checkBody(req.body, ["emailValue", "passwordValue", "firstnameValue", "lastnameValue", "birthdateValue", "avatarPath"])) {
     return res.status(400).json({ result: false, error: "Please complete all fields." });
   }
+
+  const existingUser = await User.findOne({ email: { $regex: new RegExp(`^${req.body.emailValue}$`, "i") } });
+
+  if (existingUser) {
+    return res.status(409).json({ result: false, error: "This user already exists." });
+  }
+
+  const newUser = new User({
+    email: req.body.emailValue,
+    token: uid2(32),
+    passwordHash: bcrypt.hashSync(req.body.passwordValue, 10),
+    profile: {
+      firstname: req.body.firstnameValue,
+      lastname: req.body.lastnameValue,
+      avatar: req.body.avatarPath,
+      bio: req.body.bio || "",
+      location: req.body.location || "",
+      birthdate: req.body.birthdateValue,
+      gender: req.body.genderValue,
+    },
+  });
+
   try {
-    const existingUser = await User.findOne({ email: { $regex: new RegExp(`^${req.body.emailValue}$`, "i") } });
-
-    if (existingUser) {
-      return res.status(409).json({ result: false, error: "This user already exists." });
-    }
-
-    const newUser = new User({
-      email: req.body.emailValue,
-      token: uid2(32),
-      passwordHash: bcrypt.hashSync(req.body.passwordValue, 10),
-      profile: {
-        firstname: req.body.firstnameValue,
-        lastname: req.body.lastnameValue,
-        avatar: req.body.avatarPath,
-        bio: req.body.bio || "",
-        location: req.body.location || "",
-        birthdate: req.body.birthdateValue,
-        gender: req.body.genderValue,
-      },
-    });
-
-    try {
-      const newUserDoc = await newUser.save();
-      return res.status(201).json({ result: true, user: newUserDoc }); // A adapter pour les besoins du frontend
-    } catch (saveError) {
-      console.error("Error saving user:", saveError);
-      return res.status(500).json({ result: false, error: "Unable to save the user. Please try again." });
-    }
-  } catch (err) {
-    console.error("Error during signup:", err);
-    return res.status(500).json({ result: false, error: "An unexpected error occured. Please try again." });
+    const newUserDoc = await newUser.save();
+    return res.status(201).json({ result: true, user: newUserDoc }); // A adapter pour les besoins du frontend
+  } catch (saveError) {
+    console.error("Error saving user:", saveError);
+    return res.status(500).json({ result: false, error: "Unable to save the user. Please try again." });
   }
 });
 
