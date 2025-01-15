@@ -31,8 +31,8 @@ router.post("/", async (req, res) => {
 // Route pour récupérer tous les messages d'un utilisateur
 router.get("/", async (req, res) => {
   try {
-    const posts = await Post.find().populate("author", "profile.firstname profile.lastname");
-    res.status(200).json({ data: posts });
+    const posts = await Post.find().populate("author", "_id profile.firstname profile.lastname profile.avatar");
+    res.status(200).json({ posts });
   } catch (error) {
     res.status(500).json({ message: "Error during getting posts", error });
   }

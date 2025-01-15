@@ -66,4 +66,16 @@ router.post("/signin", async (req, res) => {
   }
 });
 
+// Route pour récupérer les infos d'un utilisateur
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findOne({ _id: id });
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  res.json(user);
+});
+
 module.exports = router;
