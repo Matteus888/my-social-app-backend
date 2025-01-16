@@ -101,7 +101,7 @@ router.get("/:id", authenticate, async (req, res) => {
     const user = await User.findOne({ publicId: id });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ result: false, error: "User not found" });
     }
 
     res.status(200).json({ result: true, user: user });
@@ -119,12 +119,42 @@ router.get("/:id/posts", authenticate, async (req, res) => {
     const user = await User.findOne({ publicId: id }).populate("posts");
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ result: false, error: "User not found" });
     }
 
     res.status(200).json({ result: true, posts: user.posts });
   } catch (error) {
     console.error("Error fetching user posts:", error);
+    res.status(500).json({ result: false, error: "Internal server error" });
+  }
+});
+
+// Route pour ajouter un ami à un utilisateur
+router.post("/:id/friends", authenticate, async (req, res) => {
+  const { id } = req.params;
+  const currentUserId = req.user.publicId;
+
+  try {
+    const currentUser = await User.findOne({ publicId: currentUserId });
+    const friendUser = await User.findOne({ publicId: id });
+
+    if (!currentUser || !friendUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (currentUser.social.friends.includes(friendUser._id)) {
+      return res.status(400).json({ result: false, error: "You are already friend with this user." });
+    }
+
+    currentUser.social.friends.push(friendUser._id);
+    friendUser.social.friends.push(currentUser._id);
+
+    await currentUser.save();
+    await friendUser.save();
+
+    res.status(200).json({ result: true, message: "Friend added successfully" });
+  } catch (error) {
+    console.error("Error adding friend:", error);
     res.status(500).json({ result: false, error: "Internal server error" });
   }
 });
