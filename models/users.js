@@ -10,13 +10,14 @@ const userSchema = mongoose.Schema(
       lowercase: true, // Convertit en minuscule
       match: [/.+@.+\..+/, "Invalid email address"], // Validation de l'email
     },
-    token: {
-      type: String,
-      required: true,
-    },
     passwordHash: {
       type: String,
       required: true,
+    },
+    publicId: {
+      type: String,
+      required: true,
+      unique: true,
     },
     profile: {
       firstname: {
