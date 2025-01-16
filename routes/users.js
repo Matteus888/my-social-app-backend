@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 
-const JWT_SECRET = process.env.JWT_SECRET || "secret-key";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Route pour s'inscrire sur le site
 router.post("/signup", async (req, res) => {
@@ -18,6 +18,7 @@ router.post("/signup", async (req, res) => {
 
   try {
     const existingUser = await User.findOne({ email: { $regex: new RegExp(`^${req.body.emailValue}$`, "i") } });
+
     if (existingUser) {
       return res.status(409).json({ result: false, error: "This user already exists." });
     }
@@ -62,6 +63,7 @@ router.post("/signin", async (req, res) => {
   if (!checkBody(req.body, ["emailValue", "passwordValue"])) {
     return res.status(400).json({ result: false, error: "Please complete all fields." });
   }
+
   try {
     const user = await User.findOne({ email: { $regex: new RegExp(`^${req.body.emailValue}$`, "i") } });
 
@@ -70,6 +72,7 @@ router.post("/signin", async (req, res) => {
     }
 
     const isPasswordValid = bcrypt.compareSync(req.body.passwordValue, user.passwordHash);
+
     if (!isPasswordValid) {
       return res.status(401).json({ result: false, error: "Wrong password" });
     }
@@ -93,16 +96,37 @@ router.post("/signin", async (req, res) => {
 // Route pour récupérer les infos d'un utilisateur
 router.get("/:id", authenticate, async (req, res) => {
   const { id } = req.params;
-  if (req.user.publicId !== id) {
-    return res.status(403).json({ error: "You are not authorized to access this profile." });
-  }
-  const user = await User.findOne({ publicId: id });
 
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
+  try {
+    const user = await User.findOne({ publicId: id });
 
-  res.json(user);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ result: true, user: user });
+  } catch (error) {
+    console.error("Error fetching user infos:", error);
+    res.status(500).json({ result: false, error: "Internal server error" });
+  }
+});
+
+// Route pour récupérer tous les posts d'un utilisateur
+router.get("/:id/posts", authenticate, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findOne({ publicId: id }).populate("posts");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ result: true, posts: user.posts });
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    res.status(500).json({ result: false, error: "Internal server error" });
+  }
 });
 
 module.exports = router;
