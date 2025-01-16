@@ -26,6 +26,10 @@ router.post("/", authenticate, async (req, res) => {
       author: user._id,
     });
     await newMessage.save();
+
+    user.posts.push(newMessage._id);
+    await user.save();
+
     res.status(201).json({ result: true, newMessage });
   } catch (error) {
     console.error("Error during post recording:", error);

@@ -4,7 +4,6 @@ var router = express.Router();
 const { checkBody } = require("../modules/checkBody");
 const { authenticate } = require("../modules/authenticate");
 const User = require("../models/users");
-const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
