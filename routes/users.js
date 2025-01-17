@@ -93,6 +93,29 @@ router.post("/signin", async (req, res) => {
   }
 });
 
+// Route pour récupérer la liste d'amis
+
+// Route pour récupérer les demandes d'amis A TESTER HEADER
+router.get("/friend-requests", authenticate, async (req, res) => {
+  const currentUserId = req.user.publicId;
+
+  try {
+    const currentUser = await User.findOne({ publicId: currentUserId }).populate({
+      path: "social.friendRequests",
+      select: "publicId profile.firstname profile.lastname profile.avatar",
+    });
+
+    if (!currentUser) {
+      return res.status(404).json({ result: false, error: "User not found." });
+    }
+
+    res.status(200).json({ result: true, friendRequests: currentUser.social.friendRequests });
+  } catch (error) {
+    console.error("Error fetching friend requests:", error);
+    res.status(500).json({ result: false, error: "Internal server error." });
+  }
+});
+
 // Route pour récupérer les infos d'un utilisateur
 router.get("/:id", authenticate, async (req, res) => {
   const { id } = req.params;
@@ -244,27 +267,6 @@ router.post("/:id/friend-request/:action", authenticate, async (req, res) => {
   } catch (error) {
     console.error("Error handling friend request:", error);
     res.status(500).json({ error: "Internal server error." });
-  }
-});
-
-// Route pour récupérer les demandes d'amis A TESTER HEADER
-router.get("/friend-requests", authenticate, async (req, res) => {
-  const currentUserId = req.user.publicId;
-
-  try {
-    const currentUser = await User.findOne({ publicId: currentUserId }).populate({
-      path: "social.friendRequests",
-      select: "publicId profile.firstname profile.lastname profile.avatar",
-    });
-
-    if (!currentUser) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    res.status(200).json({ result: true, friendRequests: currentUser.social.friendRequests });
-  } catch (error) {
-    console.error("Error fetching friend requests:", error);
-    res.status(500).json({ result: false, error: "Internal server error." });
   }
 });
 
