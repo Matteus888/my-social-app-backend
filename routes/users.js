@@ -161,18 +161,19 @@ router.post("/:id/friend-request", authenticate, async (req, res) => {
 router.post("/:id/friend-request/:action", authenticate, async (req, res) => {
   const { id, action } = req.params;
   const currentUserId = req.user.publicId;
+  console.log(action);
 
   try {
     const currentUser = await User.findOne({ publicId: currentUserId });
     const friendUser = await User.findOne({ publicId: id });
 
     if (!currentUser || !friendUser) {
-      return res.status(404).json({ error: "User not found." });
+      return res.status(404).json({ result: false, error: "User not found." });
     }
 
     const requestIndex = currentUser.social.friendRequests.indexOf(friendUser._id);
     if (requestIndex === -1) {
-      return res.status(400).json({ error: "No friend request found from this user." });
+      return res.status(400).json({ result: false, error: "No friend request found from this user." });
     }
 
     if (action === "accept") {
@@ -192,7 +193,7 @@ router.post("/:id/friend-request/:action", authenticate, async (req, res) => {
 
       return res.status(200).json({ result: true, message: "Friend request rejected." });
     } else {
-      return res.status(400).json({ error: "Invalid action." });
+      return res.status(400).json({ result: false, error: "Invalid action." });
     }
   } catch (error) {
     console.error("Error handling friend request:", error);
