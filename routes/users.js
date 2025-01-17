@@ -5,6 +5,25 @@ const { authenticate } = require("../modules/authenticate");
 const User = require("../models/users");
 
 // Route pour récupérer la liste d'amis
+router.get("/friends", authenticate, async (req, res) => {
+  const currentUserId = req.user.publicId;
+
+  try {
+    const currentUser = await User.findOne({ publicId: currentUserId }).populate({
+      path: "social.friends",
+      select: "publicId profile.firstname profile.lastname profile.avatar",
+    });
+
+    if (!currentUser) {
+      return res.status(404).json({ result: false, error: "User not found." });
+    }
+
+    res.status(200).json({ result: true, friends: currentUser.social.friends });
+  } catch (error) {
+    console.error("Error fetching friends:", error);
+    res.status(500).json({ result: false, error: "Internal server error." });
+  }
+});
 
 // Route pour récupérer les demandes d'amis
 router.get("/friend-requests", authenticate, async (req, res) => {
