@@ -169,13 +169,13 @@ router.post("/:id/follow", authenticate, async (req, res) => {
   }
 });
 
-// Route pour envoyer une demande d'ami A TESTER
+// Route pour envoyer une demande d'ami
 router.post("/:id/friend-request", authenticate, async (req, res) => {
   const { id } = req.params;
   const currentUserId = req.user.publicId;
 
   if (currentUserId === id) {
-    return res.status(400).json({ error: "You cannot send a friend request to yourself." });
+    return res.status(400).json({ result: false, error: "You cannot send a friend request to yourself." });
   }
 
   try {
@@ -183,15 +183,15 @@ router.post("/:id/friend-request", authenticate, async (req, res) => {
     const friendUser = await User.findOne({ publicId: id });
 
     if (!currentUser || !friendUser) {
-      return res.status(404).json({ error: "User not found." });
+      return res.status(404).json({ result: false, error: "User not found." });
     }
 
     if (friendUser.social.friendRequests.includes(currentUser._id)) {
-      return res.status(400).json({ error: "Friend request already sent." });
+      return res.status(400).json({ result: false, error: "Friend request already sent." });
     }
 
     if (friendUser.social.friends.includes(currentUser._id)) {
-      return res.status(400).json({ error: "You are already friends with this user." });
+      return res.status(400).json({ result: false, error: "You are already friends with this user." });
     }
 
     friendUser.social.friendRequests.push(currentUser._id);
@@ -200,7 +200,7 @@ router.post("/:id/friend-request", authenticate, async (req, res) => {
     res.status(200).json({ result: true, message: "Friend request sent successfully." });
   } catch (error) {
     console.error("Error sending friend request:", error);
-    res.status(500).json({ error: "Internal server error." });
+    res.status(500).json({ result: false, error: "Internal server error." });
   }
 });
 
