@@ -6,7 +6,7 @@ const User = require("../models/users");
 
 // Route pour récupérer la liste d'amis
 
-// Route pour récupérer les demandes d'amis A TESTER HEADER
+// Route pour récupérer les demandes d'amis
 router.get("/friend-requests", authenticate, async (req, res) => {
   const currentUserId = req.user.publicId;
 
