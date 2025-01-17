@@ -7,8 +7,8 @@ const userSchema = mongoose.Schema(
       required: true,
       unique: true,
       trim: true,
-      lowercase: true, // Convertit en minuscule
-      match: [/.+@.+\..+/, "Invalid email address"], // Validation de l'email
+      lowercase: true,
+      match: [/.+@.+\..+/, "Invalid email address"],
     },
     passwordHash: {
       type: String,
@@ -31,13 +31,12 @@ const userSchema = mongoose.Schema(
         trim: true,
       },
       avatar: {
-        // URL de l'image de profil
         type: String,
         default: "",
       },
       bio: {
         type: String,
-        maxlength: 200, // Limite à 200 caractères
+        maxlength: 200,
       },
       location: {
         type: String,
@@ -49,7 +48,7 @@ const userSchema = mongoose.Schema(
       },
       gender: {
         type: String,
-        enum: ["male", "female", "custom", "irrelevant"], // Genres acceptés
+        enum: ["male", "female", "custom", "irrelevant"],
         default: "irrelevant",
       },
       website: {
@@ -59,11 +58,12 @@ const userSchema = mongoose.Schema(
       },
     },
     social: {
-      friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Références aux utilisateurs amis
-      followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Références aux utilisateurs qui nous suivent
-      following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Références aux utilisateurs que l'on suit
+      friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     },
-    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }], // Références aux publications
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     settings: {
       privacy: {
         type: String,
