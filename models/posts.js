@@ -61,8 +61,14 @@ const postSchema = mongoose.Schema(
     privacy: {
       // Niveau de confidentialité de la publication
       type: String,
-      enum: ["public", "friendsOnly", "private"],
+      enum: ["public", "friendsOnly", "private", "specificUser"],
       default: "public",
+    },
+    specificUser: {
+      // Utilisateur unique autorisé à voir (uniquement pour privacy: 'specificUser')
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null, // Null signifie pas de restriction utilisateur unique
     },
     tags: [
       // Tags associés à la publication

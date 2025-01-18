@@ -6,7 +6,7 @@ const { authenticate } = require("../modules/authenticate");
 const Post = require("../models/posts");
 const User = require("../models/users");
 
-// Route pour publier un post
+// Route pour publier un post public
 router.post("/", authenticate, async (req, res) => {
   if (!checkBody(req.body, ["content", "author"])) {
     return res.status(400).json({ result: false, error: "Please complete all fields." });
@@ -37,13 +37,53 @@ router.post("/", authenticate, async (req, res) => {
   }
 });
 
-// Route pour récupérer tous les messages
+// Route pour récupérer tous les messages PUBLIC A RAJOUTER
 router.get("/", authenticate, async (req, res) => {
   try {
     const posts = await Post.find().populate("author", "publicId profile.firstname profile.lastname profile.avatar");
     res.status(200).json({ posts });
   } catch (error) {
     res.status(500).json({ message: "Error during getting posts", error });
+  }
+});
+
+// Route pour publier un post à un autre utilisateur A TESTER
+router.post("/specific", authenticate, async (req, res) => {
+  if (!checkBody(req.body, ["content", "author", "specificUser", "privacy"])) {
+    return res.status(400).json({ result: false, error: "Please complete all fields." });
+  }
+  if (req.user.publicId !== req.body.author) {
+    return res.status(403).json({ result: false, error: "You are not authorized to create this post." });
+  }
+
+  try {
+    const author = await User.findOne({ publicId: req.body.author });
+    if (!author) {
+      return res.status(404).json({ result: false, error: "Author not found" });
+    }
+    const targetUser = await User.findOne({ publicId: req.body.specificUser });
+    if (!targetUser) {
+      return res.status(404).json({ result: false, error: "Target user not found" });
+    }
+    if (!["specificUser", "public"].includes(req.body.privacy)) {
+      return res.status(400).json({ result: false, error: "Invalid privacy value." });
+    }
+
+    const newPost = new Post({
+      content: req.body.content,
+      author: author._id,
+      privacy: req.body.privacy,
+      specificUser: targetUser._id,
+    });
+    await newPost.save();
+
+    author.posts.push(newPost._id);
+    await author.save();
+
+    res.status(201).json({ result: true, message: "Post successfully created.", post: newPost });
+  } catch (error) {
+    console.error("Error during post recording:", error);
+    res.status(500).json({ result: false, error: "An error occurred while creating the post." });
   }
 });
 
