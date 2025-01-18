@@ -48,9 +48,11 @@ router.post("/signup", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res
-      .status(201)
-      .json({ result: true, token, user: { publicId: savedUser.publicId, email: savedUser.email, profile: savedUser.profile } });
+    return res.status(201).json({
+      result: true,
+      token,
+      user: { publicId: savedUser.publicId, email: savedUser.email, profile: savedUser.profile, social: savedUser.social },
+    });
   } catch (error) {
     console.error("Error in /signup route:", error);
     return res.status(500).json({ result: false, error: "An error occurred during signup. Please try again" });
@@ -85,7 +87,9 @@ router.post("/signin", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res.status(200).json({ result: true, token, user: { publicId: user.publicId, email: user.email, profile: user.profile } });
+    return res
+      .status(200)
+      .json({ result: true, token, user: { publicId: user.publicId, email: user.email, profile: user.profile, social: user.social } });
   } catch (err) {
     console.error("Error during signin process:", err);
     return res.status(500).json({ result: false, error: "An unexpected error occurred. Please try again." });

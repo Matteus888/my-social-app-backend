@@ -157,11 +157,10 @@ router.post("/:id/friend-request", authenticate, async (req, res) => {
   }
 });
 
-// Route pour gérer une demande d'ami A TESTER HEADER
+// Route pour gérer une demande d'ami
 router.post("/:id/friend-request/:action", authenticate, async (req, res) => {
   const { id, action } = req.params;
   const currentUserId = req.user.publicId;
-  console.log(action);
 
   try {
     const currentUser = await User.findOne({ publicId: currentUserId });
@@ -179,7 +178,6 @@ router.post("/:id/friend-request/:action", authenticate, async (req, res) => {
     if (action === "accept") {
       currentUser.social.friends.push(friendUser._id);
       friendUser.social.friends.push(currentUser._id);
-
       currentUser.social.friendRequests.splice(requestIndex, 1);
 
       await currentUser.save();
