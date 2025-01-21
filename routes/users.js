@@ -4,6 +4,35 @@ var router = express.Router();
 const { authenticate } = require("../modules/authenticate");
 const User = require("../models/users");
 
+// Route pour rechercher parmis les utilisateurs
+router.get("/search", authenticate, async (req, res) => {
+  const { query } = req.query;
+
+  if (!query) {
+    return res.status(400).json({ result: false, error: "Query parameter is required" });
+  }
+
+  try {
+    const matchedUsers = await User.find({
+      $or: [{ "profile.firstname": { $regex: query, $options: "i" } }, { "profile.lastname": { $regex: query, $options: "i" } }],
+    })
+      .sort({ "profile.firstname": 1 })
+      .limit(10)
+      .exec();
+
+    const formattedUsers = matchedUsers.map((user) => ({
+      publicId: user.publicId,
+      fullName: `${user.profile.firstname} ${user.profile.lastname}`,
+      avatar: user.profile.avatar,
+    }));
+
+    res.status(200).json({ result: true, users: formattedUsers });
+  } catch (err) {
+    console.error("Error during user search:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Route pour récupérer la liste d'amis
 router.get("/friends", authenticate, async (req, res) => {
   const currentUserId = req.user.publicId;
