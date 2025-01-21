@@ -87,4 +87,36 @@ router.post("/specific", authenticate, async (req, res) => {
   }
 });
 
+router.delete("/:postId", authenticate, async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ result: false, error: "Post not found" });
+    }
+
+    const user = await User.findOne({ publicId: req.user.publicId });
+    if (!user) {
+      return res.status(404).json({ result: false, error: "User not found" });
+    }
+    console.log(user._id.toString());
+    console.log(post.author);
+
+    if (user._id.toString() !== post.author.toString()) {
+      return res.status(403).json({ result: false, error: "You are not authorized to delete this post." });
+    }
+
+    await Post.findByIdAndDelete(postId);
+
+    user.posts = user.posts.filter((post) => post.toString() !== postId);
+    await user.save();
+
+    res.status(200).json({ result: true, message: "Post deleted successfully." });
+  } catch (err) {
+    console.error("Error during post deletion:", err);
+    res.status(500).json({ result: false, error: "Error during post deletion" });
+  }
+});
+
 module.exports = router;
