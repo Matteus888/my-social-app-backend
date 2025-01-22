@@ -100,8 +100,6 @@ router.delete("/:postId", authenticate, async (req, res) => {
     if (!user) {
       return res.status(404).json({ result: false, error: "User not found" });
     }
-    console.log(user._id.toString());
-    console.log(post.author);
 
     if (user._id.toString() !== post.author.toString()) {
       return res.status(403).json({ result: false, error: "You are not authorized to delete this post." });
@@ -116,6 +114,93 @@ router.delete("/:postId", authenticate, async (req, res) => {
   } catch (err) {
     console.error("Error during post deletion:", err);
     res.status(500).json({ result: false, error: "Error during post deletion" });
+  }
+});
+
+// Route pour liker un post
+router.post("/:postId/likes", authenticate, async (req, res) => {
+  const { postId } = req.params;
+  const userId = req.user.publicId;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ result: false, error: "Post not found" });
+    }
+
+    const user = await User.findOne({ publicId: req.user.publicId });
+    if (!user) {
+      return res.status(404).json({ result: false, error: "User not found" });
+    }
+
+    if (post.author.toString() === user._id.toString()) {
+      return res.status(403).json({ result: false, error: "You cannot like your own post" });
+    }
+
+    const hasLiked = post.likes.includes(user._id);
+    if (hasLiked) {
+      post.likes = post.likes.filter((id) => id.toString() !== user._id.toString());
+    } else {
+      post.likes.push(user._id);
+    }
+    await post.save();
+    res.status(200).json({ result: true, message: hasLiked ? "Like removed" : "Post liked" });
+  } catch (err) {
+    console.error("Error during liking post:", err);
+    res.status(500).json({ result: false, error: "Error during liking post" });
+  }
+});
+
+// Route pour envoyer un commentaire à une publication A TESTER
+router.post("/:postId/comments", authenticate, async (req, res) => {
+  const { postId } = req.params;
+  const { content } = req.body;
+  const userId = req.user.publicId;
+
+  if (!checkBody(req.body, ["content"])) {
+    return res.status(400).json({ result: false, error: "Comment content cannot be empty." });
+  }
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ result: false, error: "Post not found" });
+    }
+
+    const user = await User.findOne({ publicId: userId });
+    if (!user) {
+      return res.status(404).json({ result: false, error: "User not found" });
+    }
+
+    const newComment = {
+      user: user,
+      content,
+      createdAt: new Date(),
+    };
+
+    post.comments.push(newComment);
+    await post.save();
+    res.status(201).json({ result: true, message: "Comment added successfully.", comment: newComment });
+  } catch (err) {
+    console.error("Error adding comment:", err);
+    res.status(500).json({ result: false, error: "An error occured while adding comment." });
+  }
+});
+
+// Route pour récupérer les commentaires d'une publication
+router.get("/:postId/comments", authenticate, async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await Post.findById(postId).populate("comments.user", "publicId profile.firstname profile.lastname profile.avatar");
+    if (!post) {
+      return res.status(404).json({ result: false, error: "Post not found" });
+    }
+
+    res.status(200).json({ result: true, message: "Comments retrieved successfully", comments: post.comments });
+  } catch (err) {
+    console.error("Error getting comments:", err);
+    res.status(500).json({ result: false, error: "An error occured while getting comments." });
   }
 });
 
