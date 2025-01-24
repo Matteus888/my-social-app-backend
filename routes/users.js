@@ -96,6 +96,33 @@ router.get("/friend-requests", authenticate, async (req, res) => {
   }
 });
 
+// Route pour mettre à jour le profils utilisateur A TESTER
+router.put("/profile", authenticate, async (req, res) => {
+  const { publicId } = req.user;
+  const { location, bio, job, avatar, website, backgroundImage } = req.body;
+
+  try {
+    const user = await User.findOne({ publicId });
+    if (!user) {
+      return res.status(404).json({ result: false, error: "User not found." });
+    }
+    console.log(website);
+    if (bio !== undefined) user.profile.bio = bio;
+    if (job !== undefined) user.profile.job = job;
+    if (location !== undefined) user.profile.location = location;
+    if (avatar !== undefined) user.profile.avatar = avatar;
+    if (website !== undefined) user.profile.website = website;
+    if (backgroundImage !== undefined) user.profile.backgroundImage = backgroundImage;
+
+    await user.save();
+
+    res.status(200).json({ result: true, message: "Profile updated successfully." });
+  } catch (err) {
+    console.error("Error uploading profile:", err);
+    return res.status(500).json({ result: false, error: "An error occured while uploading the profile." });
+  }
+});
+
 // Route pour récupérer les infos d'un utilisateur
 router.get("/:id", authenticate, async (req, res) => {
   const { id } = req.params;

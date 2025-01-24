@@ -40,14 +40,16 @@ router.post("/", authenticate, async (req, res) => {
 // Route pour récupérer tous les messages PUBLIC A RAJOUTER
 router.get("/", authenticate, async (req, res) => {
   try {
-    const posts = await Post.find().populate("author", "publicId profile.firstname profile.lastname profile.avatar");
-    res.status(200).json({ posts });
+    const posts = await Post.find()
+      .populate("author", "publicId profile.firstname profile.lastname profile.avatar")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ result: true, posts });
   } catch (error) {
-    res.status(500).json({ message: "Error during getting posts", error });
+    res.status(500).json({ result: false, message: "Error during getting posts", error });
   }
 });
 
-// Route pour publier un post à un autre utilisateur A TESTER
+// Route pour publier un post à un autre utilisateur A TESTER MAIS MODELE PAS ADAPTE
 router.post("/specific", authenticate, async (req, res) => {
   if (!checkBody(req.body, ["content", "author", "specificUser", "privacy"])) {
     return res.status(400).json({ result: false, error: "Please complete all fields." });

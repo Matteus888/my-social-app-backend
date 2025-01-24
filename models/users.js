@@ -36,7 +36,12 @@ const userSchema = mongoose.Schema(
       },
       bio: {
         type: String,
+        default: "",
         maxlength: 200,
+      },
+      job: {
+        type: String,
+        default: "",
       },
       location: {
         type: String,
@@ -55,6 +60,10 @@ const userSchema = mongoose.Schema(
         type: String,
         default: "",
         match: [/^https?:\/\/.+/, "Invalid URL"], // Validation des URL
+      },
+      backgroundImage: {
+        type: String,
+        default: "",
       },
     },
     social: {
