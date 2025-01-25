@@ -96,10 +96,10 @@ router.get("/friend-requests", authenticate, async (req, res) => {
   }
 });
 
-// Route pour mettre à jour le profils utilisateur A TESTER
+// Route pour mettre à jour le profils utilisateur A FINIR AVEC IMAGE
 router.put("/profile", authenticate, async (req, res) => {
   const { publicId } = req.user;
-  const { location, bio, job, avatar, website, backgroundImage } = req.body;
+  const { bio, job, location, avatar, website, backgroundImage } = req.body;
 
   try {
     const user = await User.findOne({ publicId });
@@ -110,8 +110,8 @@ router.put("/profile", authenticate, async (req, res) => {
     if (bio !== undefined) user.profile.bio = bio;
     if (job !== undefined) user.profile.job = job;
     if (location !== undefined) user.profile.location = location;
-    if (avatar !== undefined) user.profile.avatar = avatar;
     if (website !== undefined) user.profile.website = website;
+    if (avatar !== undefined) user.profile.avatar = avatar;
     if (backgroundImage !== undefined) user.profile.backgroundImage = backgroundImage;
 
     await user.save();
@@ -129,6 +129,27 @@ router.get("/:id", authenticate, async (req, res) => {
 
   try {
     const user = await User.findOne({ publicId: id });
+
+    if (!user) {
+      return res.status(404).json({ result: false, error: "User not found" });
+    }
+
+    res.status(200).json({ result: true, user: user });
+  } catch (error) {
+    console.error("Error fetching user infos:", error);
+    res.status(500).json({ result: false, error: "Internal server error" });
+  }
+});
+
+// Route pour récupérer les amis d'un utilisateur
+router.get("/:id/friends", authenticate, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findOne({ publicId: id }).populate({
+      path: "social.friends",
+      select: "publicId profile.firstname profile.lastname profile.avatar",
+    });
 
     if (!user) {
       return res.status(404).json({ result: false, error: "User not found" });
