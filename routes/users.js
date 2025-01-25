@@ -128,24 +128,6 @@ router.get("/:id", authenticate, async (req, res) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findOne({ publicId: id });
-
-    if (!user) {
-      return res.status(404).json({ result: false, error: "User not found" });
-    }
-
-    res.status(200).json({ result: true, user: user });
-  } catch (error) {
-    console.error("Error fetching user infos:", error);
-    res.status(500).json({ result: false, error: "Internal server error" });
-  }
-});
-
-// Route pour récupérer les amis d'un utilisateur
-router.get("/:id/friends", authenticate, async (req, res) => {
-  const { id } = req.params;
-
-  try {
     const user = await User.findOne({ publicId: id }).populate({
       path: "social.friends",
       select: "publicId profile.firstname profile.lastname profile.avatar",
