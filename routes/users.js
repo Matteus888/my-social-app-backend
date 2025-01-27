@@ -220,7 +220,7 @@ router.post("/:id/friend-request", authenticate, async (req, res) => {
     }
 
     if (friendUser.social.friendRequests.includes(currentUser._id)) {
-      return res.status(400).json({ result: false, error: "Friend request already sent." });
+      return res.status(409).json({ result: false, error: "Friend request already sent." });
     }
 
     if (friendUser.social.friends.includes(currentUser._id)) {
@@ -276,6 +276,39 @@ router.post("/:id/friend-request/:action", authenticate, async (req, res) => {
   } catch (error) {
     console.error("Error handling friend request:", error);
     res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+// Route pour supprimer un ami
+router.delete("/:id/unfriend", authenticate, async (req, res) => {
+  const { id } = req.params;
+  const currentUserId = req.user.publicId;
+
+  try {
+    const currentUser = await User.findOne({ publicId: currentUserId });
+    const friendUser = await User.findOne({ publicId: id });
+
+    if (!currentUser || !friendUser) {
+      return res.status(404).json({ result: false, error: "User not found." });
+    }
+
+    const isFriendInCurrentUser = currentUser.social.friends.includes(friendUser._id);
+    const isFriendInFriendUser = friendUser.social.friends.includes(currentUser._id);
+
+    if (!isFriendInCurrentUser || !isFriendInFriendUser) {
+      return res.status(400).json({ result: false, error: "You are not friends with this user." });
+    }
+
+    currentUser.social.friends = currentUser.social.friends.filter((friendId) => !friendId.equals(friendUser._id));
+    friendUser.social.friends = friendUser.social.friends.filter((friendId) => !friendId.equals(currentUser._id));
+
+    await currentUser.save();
+    await friendUser.save();
+
+    res.status(200).json({ result: true, message: "Friend removed successfully." });
+  } catch (err) {
+    console.error("Error removing friend:", err);
+    res.status(500).json({ result: false, error: "Internal server error." });
   }
 });
 

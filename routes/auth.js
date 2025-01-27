@@ -76,6 +76,15 @@ router.post("/signin", async (req, res) => {
       return res.status(401).json({ result: false, error: "Wrong password" });
     }
 
+    // Préparation des données `social`
+    const socialKeys = ["friends", "friendRequests", "followers", "following"];
+    const social = {};
+
+    for (const key of socialKeys) {
+      const relatedUsers = await User.find({ _id: { $in: user.social[key] } }, "publicId").lean();
+      social[key] = relatedUsers.map((u) => u.publicId);
+    }
+
     const token = jwt.sign(
       {
         publicId: user.publicId,
@@ -87,7 +96,7 @@ router.post("/signin", async (req, res) => {
 
     return res
       .status(200)
-      .json({ result: true, token, user: { publicId: user.publicId, email: user.email, profile: user.profile, social: user.social } });
+      .json({ result: true, token, user: { publicId: user.publicId, email: user.email, profile: user.profile, social } });
   } catch (err) {
     console.error("Error during signin process:", err);
     return res.status(500).json({ result: false, error: "An unexpected error occurred. Please try again." });
