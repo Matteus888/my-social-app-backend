@@ -12,7 +12,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: (req, file) => ({
     folder: `my-social-app/user_profile/${req.user.publicId}`, // Répertoire dynamique basé sur publicId
-    allowed_formats: ["jpg", "png", "jpeg"],
+    allowed_formats: ["jpg", "png", "jpeg", "webp", "avif"],
   }),
 });
 
