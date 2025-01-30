@@ -17,8 +17,10 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "*",
+    origin: "https://my-social-app-frontend.vercel.app",
     credentials: true,
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: "Content-Type,Authorization",
   })
 );
 app.use(logger("dev"));
