@@ -30,7 +30,6 @@ router.post("/signup", async (req, res) => {
       profile: {
         firstname: req.body.firstnameValue,
         lastname: req.body.lastnameValue,
-        // avatar: req.body.avatarPath,
         birthdate: req.body.birthdateValue,
         gender: req.body.genderValue,
       },
