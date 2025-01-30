@@ -6,6 +6,7 @@ const User = require("../models/users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
+const { authenticate } = require("../modules/authenticate");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -46,9 +47,16 @@ router.post("/signup", async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    // ✅ Stocke le token dans un cookie sécurisé
+    res.cookie("token", token, {
+      httpOnly: true, // Protège contre les attaques XSS
+      secure: process.env.NODE_ENV === "production", // Active secure en production
+      sameSite: "Strict", // Empêche les attaques CSRF
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+    });
+
     return res.status(201).json({
       result: true,
-      token,
       user: { publicId: savedUser.publicId, email: savedUser.email, profile: savedUser.profile, social: savedUser.social },
     });
   } catch (error) {
@@ -94,13 +102,30 @@ router.post("/signin", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res
-      .status(200)
-      .json({ result: true, token, user: { publicId: user.publicId, email: user.email, profile: user.profile, social } });
+    // ✅ Stocke le token dans un cookie sécurisé
+    res.cookie("token", token, {
+      httpOnly: true, // Protège contre les attaques XSS
+      secure: process.env.NODE_ENV === "production", // Active secure en production
+      sameSite: "Strict", // Empêche les attaques CSRF
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+    });
+
+    return res.status(200).json({ result: true, user: { publicId: user.publicId, email: user.email, profile: user.profile, social } });
   } catch (err) {
     console.error("Error during signin process:", err);
     return res.status(500).json({ result: false, error: "An unexpected error occurred. Please try again." });
   }
+});
+
+// Route pour se déconnecter
+router.post("/signout", authenticate, (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  });
+
+  return res.status(200).json({ result: true, message: "Successfully signed out." });
 });
 
 module.exports = router;

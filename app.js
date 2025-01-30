@@ -11,11 +11,16 @@ const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
 const postsRouter = require("./routes/posts");
 
-var app = express();
+const app = express();
 
 const cors = require("cors");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3001", // 🔥 Remplace par l'URL de ton frontend
+    credentials: true, // 🔥 Permet d'envoyer les cookies au frontend
+  })
+);
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

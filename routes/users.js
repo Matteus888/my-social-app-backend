@@ -187,7 +187,6 @@ router.get("/:id", authenticate, async (req, res) => {
       path: "social.friends",
       select: "publicId profile.firstname profile.lastname profile.avatar",
     });
-
     if (!user) {
       return res.status(404).json({ result: false, error: "User not found" });
     }
