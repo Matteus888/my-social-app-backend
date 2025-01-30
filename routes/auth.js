@@ -12,7 +12,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // Route pour s'inscrire sur le site
 router.post("/signup", async (req, res) => {
-  if (!checkBody(req.body, ["emailValue", "passwordValue", "firstnameValue", "lastnameValue", "birthdateValue", "avatarPath"])) {
+  if (!checkBody(req.body, ["emailValue", "passwordValue", "firstnameValue", "lastnameValue", "birthdateValue"])) {
     return res.status(400).json({ result: false, error: "Please complete all fields." });
   }
 
@@ -30,7 +30,7 @@ router.post("/signup", async (req, res) => {
       profile: {
         firstname: req.body.firstnameValue,
         lastname: req.body.lastnameValue,
-        avatar: req.body.avatarPath,
+        // avatar: req.body.avatarPath,
         birthdate: req.body.birthdateValue,
         gender: req.body.genderValue,
       },
