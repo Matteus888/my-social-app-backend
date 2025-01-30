@@ -15,6 +15,7 @@ const app = express();
 
 const cors = require("cors");
 
+app.use(cookieParser());
 app.use(
   cors({
     origin: "https://my-social-app-frontend.vercel.app",
@@ -33,7 +34,6 @@ app.use((req, res, next) => {
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
