@@ -50,7 +50,7 @@ router.post("/signup", async (req, res) => {
     // ✅ Stocke le token dans un cookie sécurisé
     res.cookie("token", token, {
       httpOnly: true, // Protège contre les attaques XSS
-      secure: process.env.NODE_ENV === "production", // Active secure en production
+      secure: true,
       sameSite: "Strict", // Empêche les attaques CSRF
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
     });
