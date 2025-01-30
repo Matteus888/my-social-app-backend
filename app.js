@@ -17,7 +17,7 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "https://my-social-app-frontend.vercel.app",
+    origin: "*",
     credentials: true,
   })
 );
