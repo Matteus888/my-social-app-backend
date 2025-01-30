@@ -17,8 +17,8 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "http://localhost:3001", // 🔥 Remplace par l'URL de ton frontend
-    credentials: true, // 🔥 Permet d'envoyer les cookies au frontend
+    origin: "https://my-social-app-frontend.vercel.app",
+    credentials: true,
   })
 );
 app.use(logger("dev"));
