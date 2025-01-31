@@ -50,7 +50,7 @@ router.post("/signup", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true, // Protège contre les attaques XSS
       secure: true,
-      sameSite: "None", // Empêche les attaques CSRF
+      sameSite: "Strict", // Empêche les attaques CSRF
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
     });
 
@@ -105,7 +105,7 @@ router.post("/signin", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true, // Protège contre les attaques XSS
       secure: true,
-      sameSite: "None", // Empêche les attaques CSRF
+      sameSite: "Strict", // Empêche les attaques CSRF
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
     });
 
