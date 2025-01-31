@@ -18,7 +18,7 @@ const cors = require("cors");
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://my-social-app-frontend.vercel.app",
+    origin: "https://my-social-app-frontend.vercel.app" || "http://localhost:3001",
     credentials: true,
     methods: "GET,POST,PUT,DELETE",
     allowedHeaders: "Content-Type,Authorization",
