@@ -11,9 +11,9 @@ router.post("/", authenticate, async (req, res) => {
   if (!checkBody(req.body, ["content", "author"])) {
     return res.status(400).json({ result: false, error: "Please complete all fields." });
   }
-  if (req.user.publicId !== req.body.author) {
-    return res.status(403).json({ error: "You are not authorized to create this post." });
-  }
+  // if (req.user.publicId !== req.body.author) {
+  //   return res.status(403).json({ error: "You are not authorized to create this post." });
+  // }
 
   try {
     const user = await User.findOne({ publicId: req.body.author });
