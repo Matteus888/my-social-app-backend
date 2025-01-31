@@ -11,9 +11,11 @@ router.post("/", authenticate, async (req, res) => {
   if (!checkBody(req.body, ["content", "author"])) {
     return res.status(400).json({ result: false, error: "Please complete all fields." });
   }
-  // if (req.user.publicId !== req.body.author) {
-  //   return res.status(403).json({ error: "You are not authorized to create this post." });
-  // }
+  console.log("req.user.publicId", req.user.publicId);
+  console.log("req.body.author", req.body.author);
+  if (req.user.publicId !== req.body.author) {
+    return res.status(403).json({ error: "You are not authorized to create this post." });
+  }
 
   try {
     const user = await User.findOne({ publicId: req.body.author });
@@ -102,10 +104,6 @@ router.delete("/:postId", authenticate, async (req, res) => {
     if (!user) {
       return res.status(404).json({ result: false, error: "User not found" });
     }
-
-    // if (user._id.toString() !== post.author.toString()) {
-    //   return res.status(403).json({ result: false, error: "You are not authorized to delete this post." });
-    // }
 
     await Post.findByIdAndDelete(postId);
 
