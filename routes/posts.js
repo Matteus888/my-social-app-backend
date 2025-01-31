@@ -103,9 +103,9 @@ router.delete("/:postId", authenticate, async (req, res) => {
       return res.status(404).json({ result: false, error: "User not found" });
     }
 
-    if (user._id.toString() !== post.author.toString()) {
-      return res.status(403).json({ result: false, error: "You are not authorized to delete this post." });
-    }
+    // if (user._id.toString() !== post.author.toString()) {
+    //   return res.status(403).json({ result: false, error: "You are not authorized to delete this post." });
+    // }
 
     await Post.findByIdAndDelete(postId);
 
